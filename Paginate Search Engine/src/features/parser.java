@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 public class parser{
@@ -81,10 +82,12 @@ public class parser{
 	public static void saveTxt(Document doc)
 	{
 		try {
-			BufferedWriter text = new BufferedWriter(
+			File newFile = new File(htmlDirPath + doc.title().replaceAll("[/|?:]", "-") + ".html");
+			org.jsoup.nodes.Document docs = Jsoup.parse(newFile, "UTF-8");
+			BufferedWriter bw = new BufferedWriter(
 					new FileWriter(txtDirPath + doc.title().replaceAll("[/|?:]", "-") + ".txt"));
-			text.write(doc.toString());
-			text.close();
+			bw.write(docs.text());
+			bw.close();
 		}
 		catch (Exception e) 
 		{
@@ -92,4 +95,5 @@ public class parser{
 					"Exception in saving text file: " + txtDirPath + doc.title().replaceAll("[/|?:]", "-") + ".txt" + "\r\n" + e);
 		}
 	}
+	
 }
