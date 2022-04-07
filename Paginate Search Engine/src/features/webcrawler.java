@@ -1,6 +1,8 @@
 package features;
 
 import java.util.ArrayList;
+import java.util.Scanner;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,16 +30,23 @@ public class webcrawler{
 		this.ListWebPage = ListwebPage;
 	}
 	
-	private int MaxDepth = 3;
+	private int MaxDepth = 1;
+	Scanner sc = new Scanner(System.in);
+	int num;
 	
 	public void crawl() 
 	{	
-		String[] urls = { "https://www.uwindsor.ca/",
-						"https://beebom.com/microsoft-xbox-series-x-mini-fridges" };
-		for (String url : urls) 
-		{
-			startCrawler(url, 0);
-		}
+		System.out.println("Enter URL to Crawl: ");
+		String urls = sc.nextLine();
+		
+		System.out.println("Enter Number of URLS to Crawl: ");
+		num = sc.nextInt();
+//		String[] urls = { "https://www.uwindsor.ca/",
+//						"https://beebom.com/microsoft-xbox-series-x-mini-fridges" };
+//		for (String url : urls) 
+//		{
+			startCrawler(urls, 0);
+//		}
 	}
 	
 	public void startCrawler(String url, int depth) 
@@ -51,18 +60,25 @@ public class webcrawler{
 				parser.saveTxt(doc);
 				ListWebPage.add(doc);
 				depth++;
-				if (depth < MaxDepth) 
+				if (depth <= MaxDepth) 
 				{
 					Elements links = doc.select("a[href]");
+					int linklimit = 1;
 					for (Element page : links) 
 					{
+						if(linklimit > num) {
+							break;
+						}
 						if (shouldCrawlUrl(page.attr("abs:href"))) 
 						{
 							System.out.println(ListWebPage.size() + ": " + page.attr("abs:href"));
-
+//							System.out.println(linklimit);
+//							System.out.println(depth);
 							startCrawler(page.attr("abs:href"), depth);
 							ListCrawled.add(page.attr("abs:href"));
+							linklimit++;
 						}
+						
 					}
 				}
 			} 
@@ -71,6 +87,23 @@ public class webcrawler{
 				System.out.println("Error:" + url + "\r\n" + e);
 			}
 		}
+	}
+	
+	private boolean shouldCrawlUrl(String nextUrl) 
+	{
+		return (this.ListCrawled.contains(nextUrl) || 
+				nextUrl.startsWith("javascript:") ||
+				nextUrl.contains("mailto:") ||
+				nextUrl.contains("#") || 
+				nextUrl.contains("?") ||
+				nextUrl.endsWith(".swf") ||
+				nextUrl.endsWith(".pdf") ||
+				nextUrl.endsWith(".png") ||
+				nextUrl.endsWith(".jpg") ||
+				nextUrl.endsWith(".jpeg") ||
+				nextUrl.endsWith(".gif") ?
+						false : true
+				);
 	}
 	
 	public static void main(String[] args)
